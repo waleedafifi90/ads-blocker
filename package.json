@@ -1,0 +1,15 @@
+{
+  "name": "watch-shield",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/"
+  },
+  "author": "Waleed A. Afifi (https://www.linkedin.com/in/walafifi/)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/waleedafifi90/ads-blocker.git"
+  },
+  "bugs": "https://github.com/waleedafifi90/ads-blocker/issues",
+  "homepage": "https://github.com/waleedafifi90/ads-blocker#readme"
+}

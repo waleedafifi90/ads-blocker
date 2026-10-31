@@ -1,0 +1,25 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "requestDomains": [
+        "llvpn.com", "rtmark.net", "luugy.com", "ay267.com", "jnbhi.com", "jcphi.com",
+        "dressedoutrageousrun.com", "portalfluently.com", "protrafficinspector.com",
+        "wpfsuxpusdtswd.com", "spendsdetachment.com", "smockeddesmoid.qpon"
+      ],
+      "resourceTypes": ["main_frame", "sub_frame", "script", "xmlhttprequest", "ping", "image", "other"]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "requestDomains": ["cfd", "qpon"],
+      "domainType": "thirdParty",
+      "resourceTypes": ["script", "sub_frame", "xmlhttprequest", "ping"]
+    }
+  }
+]

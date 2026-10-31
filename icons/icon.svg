@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="shield" x1="0.2" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#ecd46e"/>
+      <stop offset="0.35" stop-color="#f89a4e"/>
+      <stop offset="0.68" stop-color="#e0756d"/>
+      <stop offset="1" stop-color="#a25e7a"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f1f3e3" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#f1f3e3" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <path d="M64 6 L114 22 Q116 23 116 26 V58 C116 92 93 113 64 124 C35 113 12 92 12 58 V26 Q12 23 14 22 Z"
+        fill="url(#shield)"/>
+  <path d="M64 14 L106 27 V58 C106 64 105 69 103 74 C84 62 50 58 22 64 C22 62 22 60 22 58 V27 Z"
+        fill="url(#shine)"/>
+  <!-- distant ridge, like the palette photo -->
+  <path d="M14 84 L34 72 L46 79 L62 66 L78 77 L92 70 L114 82 C108 99 90 114 64 124 C38 114 20 100 14 84 Z"
+        fill="#a25e7a" opacity="0.45"/>
+  <path d="M52 42 L88 64 L52 86 Z" fill="#f1f3e3" stroke="#f1f3e3" stroke-width="8" stroke-linejoin="round"/>
+</svg>
