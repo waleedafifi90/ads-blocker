@@ -3,7 +3,7 @@ import { judgePopup, judgeNavigation, siteOf, sitePatterns, isWebUrl } from './s
 // State lives in chrome.storage so it survives the service worker going to sleep
 // (the idle redirect can happen minutes after the last event).
 //   local:   disabledSites[], learnedHosts[], stats {popups, redirects, overlays}
-//   session: tab:<id> -> { url, gesture: {time, href} }, pending:<id> -> openerUrl
+//   session: tab:<id> -> { url, gesture: {time, href}, menu: {time} }, pending:<id> -> openerUrl
 
 const LEARNED_RULE_BASE = 10_000; // dynamic rule ids >= this are learned hosts
 const DISABLED_RULE_BASE = 1_000; // dynamic rule ids in [1000, 10000) are per-site allow rules
@@ -21,15 +21,23 @@ async function getLocal() {
   return { disabledSites, learnedHosts, stats };
 }
 
+// Writes run one at a time: a right-click sends two messages milliseconds apart, and
+// overlapping read-then-write patches would lose one of them.
+let tabWrites = Promise.resolve();
+
 async function getTab(tabId) {
+  await tabWrites;
   const key = `tab:${tabId}`;
   return (await chrome.storage.session.get(key))[key] ?? {};
 }
 
-async function patchTab(tabId, patch) {
+function patchTab(tabId, patch) {
   const key = `tab:${tabId}`;
-  const cur = (await chrome.storage.session.get(key))[key] ?? {};
-  await chrome.storage.session.set({ [key]: { ...cur, ...patch } });
+  tabWrites = tabWrites.then(async () => {
+    const cur = (await chrome.storage.session.get(key))[key] ?? {};
+    await chrome.storage.session.set({ [key]: { ...cur, ...patch } });
+  }).catch(() => {});
+  return tabWrites;
 }
 
 async function countBlocked(kind, tabId) {
@@ -106,8 +114,8 @@ async function learnHost(scriptUrl, pageUrl) {
 
 async function decidePopup(tabId, openerUrl, targetUrl, openerTabId) {
   const { disabledSites } = await getLocal();
-  const { gesture } = await getTab(openerTabId);
-  const verdict = judgePopup({ openerUrl, targetUrl, disabledSites, gesture });
+  const { gesture, menu } = await getTab(openerTabId);
+  const verdict = judgePopup({ openerUrl, targetUrl, disabledSites, gesture, menu });
   if (verdict === 'wait') {
     await chrome.storage.session.set({ [`pending:${tabId}`]: { openerUrl, openerTabId } });
     return;
@@ -116,6 +124,8 @@ async function decidePopup(tabId, openerUrl, targetUrl, openerTabId) {
   if (verdict === 'close') {
     await chrome.tabs.remove(tabId).catch(() => {});
     await countBlocked('popups', openerTabId);
+  } else if (menu) {
+    await patchTab(openerTabId, { menu: null }); // one menu pick, one tab
   }
 }
 
@@ -177,6 +187,9 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
   if (tabId == null) return;
   if (msg.type === 'gesture' && sender.frameId === 0) {
     patchTab(tabId, { gesture: { time: Date.now(), href: msg.href ?? null } });
+  } else if (msg.type === 'menu') {
+    // From any frame: a right-click inside an iframe opens the same menu.
+    patchTab(tabId, { menu: msg.open ? { time: Date.now() } : null });
   } else if (msg.type === 'blocked') {
     countBlocked(msg.kind, tabId);
     if (msg.scriptUrl) learnHost(msg.scriptUrl, sender.tab.url);

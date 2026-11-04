@@ -111,6 +111,15 @@
   // Style/class changes aren't observed (players animate constantly); the
   // click-time guard below covers overlays that are revealed that way.
 
+  // Tabs from the right-click menu look like any other opened tab, so tell the
+  // background a menu is up. Clicking the page again means it's gone.
+  window.addEventListener('contextmenu', e => {
+    if (e.isTrusted) send({ type: 'menu', open: true });
+  }, { capture: true });
+  window.addEventListener('pointerdown', e => {
+    if (e.isTrusted && e.button !== 2) send({ type: 'menu', open: false });
+  }, { capture: true });
+
   // Click-time guard: whatever slipped past the observer gets caught here,
   // before the ad's own listeners run (we registered first, at document_start).
   const GUARDED = ['pointerdown', 'mousedown', 'touchstart', 'pointerup', 'mouseup', 'touchend', 'click', 'auxclick'];
@@ -145,6 +154,15 @@
   // trick us into "learning" some innocent host.
   const loadedScript = url =>
     !!url && performance.getEntriesByType('resource').some(e => e.initiatorType === 'script' && e.name.startsWith(url));
+
+  // A download link clicked from code counts as the user's click on that link,
+  // but only while the user really is interacting (pages can fire this event too).
+  if (isTop) {
+    document.addEventListener('watch-shield:download', e => {
+      const href = e.detail?.href;
+      if (typeof href === 'string' && navigator.userActivation?.isActive) send({ type: 'gesture', href });
+    });
+  }
 
   document.addEventListener('watch-shield:blocked', e => {
     const { kind, scriptUrl } = e.detail ?? {};

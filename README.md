@@ -5,7 +5,7 @@
 <p align="center">
   <img alt="Manifest V3" src="https://img.shields.io/badge/Manifest-V3-e0756d?style=flat-square">
   <img alt="Chrome 119+" src="https://img.shields.io/badge/Chrome-119%2B-f89a4e?style=flat-square">
-  <img alt="Version 0.1.4" src="https://img.shields.io/badge/version-0.1.4-ecd46e?style=flat-square">
+  <img alt="Version 0.1.8" src="https://img.shields.io/badge/version-0.1.8-ecd46e?style=flat-square">
   <img alt="No tracking" src="https://img.shields.io/badge/tracking-none-7fd8e2?style=flat-square">
 </p>
 

@@ -21,5 +21,22 @@
       "domainType": "thirdParty",
       "resourceTypes": ["script", "sub_frame", "xmlhttprequest", "ping"]
     }
+  },
+  {
+    "id": 3,
+    "priority": 1,
+    "action": { "type": "block" },
+    "condition": {
+      "requestDomains": [
+        "securepubads.g.doubleclick.net", "googleads.g.doubleclick.net", "cm.g.doubleclick.net",
+        "pagead2.googlesyndication.com", "tpc.googlesyndication.com", "googletagservices.com",
+        "adtrafficquality.google",
+        "servenobid.com", "kueezrtb.com", "onetag-sys.com", "openx.net", "a-mo.net",
+        "richaudience.com", "smilewanted.com", "criteo.com", "cootlogix.com", "adnxs.com",
+        "smartadserver.com", "pubmatic.com", "smaato.net", "omni-dex.io", "presage.io"
+      ],
+      "domainType": "thirdParty",
+      "resourceTypes": ["script", "sub_frame", "xmlhttprequest", "ping", "image", "media"]
+    }
   }
 ]

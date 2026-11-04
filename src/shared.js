@@ -59,16 +59,22 @@ export function isAuthUrl(url) {
 
 // How long after a real click on a link we still credit the user for what it opens.
 export const GESTURE_WINDOW_MS = 2000;
+// A context menu can stay open for a while before the user picks an item.
+export const MENU_WINDOW_MS = 60_000;
 
 /**
  * A tab was opened by another tab. Decide its fate.
  * @returns {'allow'|'close'|'wait'} 'wait' = no real URL yet (about:blank), judge again on commit.
  */
-export function judgePopup({ openerUrl, targetUrl, disabledSites = [], gesture = null, now = Date.now() }) {
+export function judgePopup({ openerUrl, targetUrl, disabledSites = [], gesture = null, menu = null, now = Date.now() }) {
   if (!isWebUrl(openerUrl)) return 'allow';
   const openerSite = siteOf(openerUrl);
   if (disabledSites.includes(openerSite)) return 'allow';
   if (!targetUrl || targetUrl === 'about:blank') return 'wait';
+
+  // Right after a right-click this is a menu item: open link or image, search for the
+  // selection, and so on. Its URL can be anything, so only the timing tells us.
+  if (menu && now - menu.time <= MENU_WINDOW_MS) return 'allow';
 
   // data:/javascript: tabs are the classic pop-under trampoline.
   if (!isWebUrl(targetUrl)) return 'close';

@@ -3,7 +3,7 @@
   "name": "Watch Shield",
   "description": "Blocks pop-unders, invisible click traps and forced redirects on streaming sites.",
   "homepage_url": "https://www.linkedin.com/in/walafifi/",
-  "version": "0.1.4",
+  "version": "0.1.8",
   "minimum_chrome_version": "119",
   "permissions": [
     "declarativeNetRequest",

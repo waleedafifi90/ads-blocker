@@ -50,6 +50,15 @@ test('popup: a real link click to that site allows it, but only briefly and only
   }), 'close');
 });
 
+test('popup: a tab right after a right-click is a menu item, whatever its URL', () => {
+  const menu = { time: NOW - 20_000 };
+  for (const targetUrl of ['https://t.me/topcinema', 'https://www.google.com/search?q=x', 'data:image/png;base64,AA']) {
+    assert.equal(judgePopup({ openerUrl: SITE, targetUrl, menu, now: NOW }), 'allow', targetUrl);
+  }
+  assert.equal(judgePopup({ openerUrl: SITE, targetUrl: 'https://ads.example/', menu: { time: NOW - 120_000 }, now: NOW }), 'close');
+  assert.equal(judgePopup({ openerUrl: SITE, targetUrl: 'https://ads.example/', menu: null, now: NOW }), 'close');
+});
+
 test('popup: tabs opened from non-web pages are left alone', () => {
   assert.equal(judgePopup({ openerUrl: 'chrome://newtab/', targetUrl: 'https://ads.example/', now: NOW }), 'allow');
 });

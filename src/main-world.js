@@ -7,6 +7,7 @@
   window[FLAG] = true;
 
   const EVENT = 'watch-shield:blocked';
+  const DOWNLOAD_EVENT = 'watch-shield:download';
   const AUTH_HOSTS = ['accounts.google.com', 'appleid.apple.com', 'login.microsoftonline.com',
     'login.live.com', 'www.paypal.com', 'checkout.stripe.com'];
 
@@ -155,15 +156,25 @@
   }
 
   // ---- synthetic clicks on links: a.click() / dispatchEvent(new MouseEvent('click')) ----
+  // Download buttons do the same thing: build <a href=file download> and click it,
+  // often with the file on a storage host. Ads never set `download`, so let those
+  // through and tell the background, in case the link also opens a new tab.
+  const isAdClick = a => {
+    if (!isAdTarget(a.href)) return false;
+    if (!a.hasAttribute('download')) return true;
+    document.dispatchEvent(new CustomEvent(DOWNLOAD_EVENT, { detail: { href: a.href } }));
+    return false;
+  };
+
   const nativeAnchorClick = HTMLAnchorElement.prototype.click;
   HTMLAnchorElement.prototype.click = disguise(function click() {
-    if (isAdTarget(this.href)) { report('popups', callerScript()); return; }
+    if (isAdClick(this)) { report('popups', callerScript()); return; }
     return nativeAnchorClick.call(this);
   }, nativeAnchorClick);
 
   const nativeDispatch = EventTarget.prototype.dispatchEvent;
   EventTarget.prototype.dispatchEvent = disguise(function dispatchEvent(event) {
-    if (this instanceof HTMLAnchorElement && event?.type === 'click' && isAdTarget(this.href)) {
+    if (this instanceof HTMLAnchorElement && event?.type === 'click' && isAdClick(this)) {
       report('popups', callerScript());
       return false;
     }
@@ -173,7 +184,7 @@
   // ---- top-frame redirects without a user click (the "idle" redirect) ----
   if (window.top === window && window.navigation) {
     window.navigation.addEventListener('navigate', e => {
-      if (!e.cancelable || e.userInitiated || navigator.userActivation?.isActive) return;
+      if (!e.cancelable || e.userInitiated || e.downloadRequest != null || navigator.userActivation?.isActive) return;
       if (e.navigationType !== 'push' && e.navigationType !== 'replace') return;
       if (!isAdTarget(e.destination.url)) return;
       e.preventDefault();
